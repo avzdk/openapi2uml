@@ -9,7 +9,7 @@ components:
         suspendedParentalLeave : pauseBarsel
         suspendedLeave : Orlov
         suspendedExpelled : pauseBortvist
-        withdrawnDiscontinued _ udmeldtAfbrudt
+        withdrawnDiscontinued : udmeldtAfbrudt
         withdrawnCompleted : udmeldtBestået
         withdrawnmExpelled : udmeldtBortvist
         reducedActivity : nedsatStudieaktivitet

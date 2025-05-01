@@ -2,7 +2,7 @@
 from models.uml_models import UmlClass
 
 class UMLToPlantUMLConverter:
-    def uml_class_to_plantuml(uml_class: UmlClass, uml_model: dict) -> str:
+    def uml_class_to_plantuml(self, uml_class: UmlClass, uml_model: dict) -> str:
         """Convert an UML class to PlantUML format."""
         puml_str = f"{uml_class.type} {uml_class.name} {{\n"
         puml_str_relationships = ""
@@ -19,3 +19,11 @@ class UMLToPlantUMLConverter:
         puml_str += "}\n"
         puml_str += puml_str_relationships
         return puml_str
+    
+    def uml_model_to_plantuml(self, uml_model: dict) -> str:
+        puml_str = "@startuml\n"
+        for class_name, uml_class in uml_model.items():
+            puml_str += self.uml_class_to_plantuml(uml_class, uml_model)
+        puml_str += "\n@enduml"
+        return puml_str
+    

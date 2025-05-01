@@ -48,12 +48,6 @@ class UMLGenerator:
             for schema_name, schema in schemas.items():
                 uml_class = self._schema_to_uml_class(schema_name, schema)
                 self.uml_model[schema_name] = uml_class
+        
+        return self.uml_model
 
-        puml_str = "@startuml\n"
-        for class_name, uml_class in self.uml_model.items():
-            puml_str += UMLToPlantUMLConverter.uml_class_to_plantuml(uml_class, self.uml_model)
-        puml_str += "\n@enduml"
-
-        with open("diagram.puml", "w") as f:
-            f.write(puml_str)
-        print("PlantUML string generated.")

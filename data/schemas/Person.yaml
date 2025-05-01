@@ -1,0 +1,88 @@
+components:
+  schemas:
+    Person:
+      description: 'DK: Person. Repræsenterer data fra CPR-registeret. Inkluderer ikke sensitive data som cpr-nummer'
+      required:
+        - firstNames
+        - lastName
+        - id
+        - nameAndAddressShilding
+      type: object
+      properties:
+        firstNames:
+          description: 'DK: Fornavne'
+          type: string
+        middleNames:
+          description: 'DK: Mellemnavne'
+          type: string
+        lastName:
+          description: 'DK: Efternavn'
+          type: string
+        nameAndAddressShilding:
+          description: 'DK: Navn og adressebeskyttelse'
+          type: boolean
+        id:
+          type: string
+          format: uuid
+        
+      example:
+        id: 123e4567-e89b-12d3-a456-426614174000
+        firstNames: Nancy
+        middleNames: Ann
+        lastName: Berggren
+        nameAndAddressShilding: false
+
+    Person_sensitive:
+      description: 'DK: Person. Repræsenterer data fra CPR-registeret. Inkluderer sensitive data som cpr-nummer'
+      required:
+        - firstNames
+        - lastName
+        - id
+        - nameAndAddressShilding
+      type: object
+      properties:
+        firstNames:
+          description: 'DK: Fornavne'
+          type: string
+        middleNames:
+          description: 'DK: Mellemnavne'
+          type: string
+        lastName:
+          description: 'DK: Efternavn'
+          type: string
+        nameAndAddressShilding:
+          description: 'DK: Navn og adressebeskyttelse'
+          type: boolean
+        id:
+          type: string
+          format: uuid
+      # Senseitive data
+        cpr:
+          description: 'DK: CPR-nummer'
+          type: string
+          format: '###########'
+        birthDate:
+          description: 'DK: Fødselsdato'
+          type: string
+          format: date
+        statsborgerskab:
+          description: 'DK: Statsborgerskab ISO 3166-1'
+          type: array
+          items:
+            type: object
+            properties:
+              countryCode:
+                description: 'DK: Landekode ISO 3166-1'
+                type: string
+                format: '##'
+              countryName:
+                description: 'DK: Landnavn'
+                type: string
+      example:
+        id: 123e4567-e89b-12d3-a456-426614174000
+        firstNames: Nancy
+        middleNames: Ann Test
+        lastName: Berggren
+        nameAndAddressShilding: false
+        cpr: '2911829996'
+        birthDate: 1982-11-29

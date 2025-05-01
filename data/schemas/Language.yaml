@@ -1,0 +1,7 @@
+components:
+  schemas:
+    Language:
+      type: string
+      enum:
+        - English
+        - Danish

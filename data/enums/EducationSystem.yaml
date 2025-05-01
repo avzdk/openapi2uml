@@ -1,0 +1,13 @@
+components:
+  schemas:
+    EducationSystem:
+      type: string
+      description: |
+        DK: Uddannelsessystem.
+        ordinaryEducationSystem: ordinæreUddannelsessystem
+        systemForContinuingEducation : efter-OgVidereuddannelsessystemet
+
+      enum:
+        - ordinaryEducationSystem
+        - systemForContinuingEducation
+

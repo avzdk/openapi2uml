@@ -1,0 +1,40 @@
+components:
+  schemas:
+    Employee:
+      description: 'DK: Ansat'
+      required:
+        - uuid
+      type: object
+      properties:
+        employeenumber:
+          description: 'DK: medarbejdernummer'
+          type: string
+        uuid:
+          type: string
+          format: uuid
+        orgPerson:
+          $ref: './OrgPerson.yaml#/components/schemas/OrgPerson'
+        workMail:  
+          description: 'DK: arbejdsmail'
+          type: string
+          format: email
+        entraIdentity:
+          description: 'DK: Primære arbejdsrelaterede Entra-identitet'
+          $ref: './EntraIdentity.yaml#/components/schemas/EntraIdentity'
+        hcmInternalPersonID:
+          description: 'DK: HCM internt person ID'
+          type: string
+
+        employments:
+          type: array
+          items:
+            $ref: './Employment.yaml#/components/schemas/Employment'
+
+      example:
+        employeenumber : "1234569879"
+        workMail : 'username@sdu.dk'
+        uuid : "123e4567-e89b-12d3-a456-426614174000"
+
+
+
+    

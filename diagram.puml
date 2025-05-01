@@ -1,0 +1,71 @@
+@startuml
+class Employee {
+    -employeenumber : string
+    #uuid : string
+    -workMail : string
+    -hcmInternalPersonID : string
+    -employments : array
+}
+Employee *-- OrgPerson
+Employee *-- EntraIdentity
+class Employment {
+    #uuid : string
+    -jobtitle : object
+    -staffcategory : object
+    -hcmInternalAssignmentID : string
+    -OrganizationUnitUUID : string
+}
+enum Language {
+}
+class OrgPerson {
+    +communicationLanguage : unknown
+    -nameInOrganization : string
+    -uuid : string
+    -studentUUID : string
+    -employeeUUID : string
+}
+OrgPerson *-- Person
+class OrgPerson_sensitive {
+    +communicationLanguage : unknown
+    -nameInOrganization : string
+    -uuid : string
+    -studentUUID : string
+    -employeeUUID : string
+    -photoUUID : string
+    -nationalitet : string
+    -privatemail : string
+    -privattelefonnr : string
+}
+OrgPerson_sensitive *-- Person_sensitive
+class OrgPersonPicklist {
+    -nameInOrganization : string
+    -uuid : string
+}
+class OrgPerson_getuuid {
+    -firstNames : string
+    -middleNames : string
+    -lastName : string
+    -cpr : string
+    -birthDate : string
+    -privatemail : string
+    -privattelefonnr : string
+}
+class Person {
+    #firstNames : string
+    -middleNames : string
+    #lastName : string
+    #nameAndAddressShilding : boolean
+    #id : string
+}
+class Person_sensitive {
+    #firstNames : string
+    -middleNames : string
+    #lastName : string
+    #nameAndAddressShilding : boolean
+    #id : string
+    -cpr : string
+    -birthDate : string
+    -statsborgerskab : array
+}
+
+@enduml

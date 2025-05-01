@@ -1,0 +1,18 @@
+components:
+  schemas:
+    EnrollmentEducationType:
+      description: |
+        DK: Uddannelsesindskrivningstype.
+        AdministrativeReenrollment: AdministrativGenindskrivning
+        AdministrativeTransfer: AdministrativOverflytning
+        AdministrativeChangeOfEducation: AdministrativStudieskift
+        Reenrollment: Genoptagelse
+        StandardEnrollment: Standardindskrivning
+      
+      type: string
+      enum:
+        - AdministrativeReenrollment
+        - AdministrativeTransfer
+        - AdministrativeChangeOfEducation
+        - Reenrollment
+        - StandardEnrollment

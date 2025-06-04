@@ -1,5 +1,5 @@
 # This module will handle UML class to PlantUML conversion logic.
-from models.uml_models import UmlClass
+from models.uml_models import UmlClass, UmlRelationship
 
 class UMLToPlantUMLConverter:
     def uml_class_to_plantuml(self, uml_class: UmlClass, uml_model: dict) -> str:
@@ -21,7 +21,7 @@ class UMLToPlantUMLConverter:
         #puml_str += puml_str_relationships
         return puml_str
     
-    def uml_relationship_to_plantuml(self, relationship: UmlClass) -> str:
+    def uml_relationship_to_plantuml(self, relationship: UmlRelationship) -> str:
         """Convert an UML relationship to PlantUML format."""
         if relationship.type == "association":
             return f'{relationship.source.name} *-- {relationship.target.name}\n'

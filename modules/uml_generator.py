@@ -7,9 +7,9 @@ from modules.uml_to_plantuml import UMLToPlantUMLConverter
 class UMLGenerator:
     def __init__(self, schema_dir):
         self.schema_dir = schema_dir
-        self.uml_model = {}
-        self.uml_relationships = [] 
-
+        self.uml_model : dict[str, UmlClass] = {}
+        self.uml_relationships: list[UmlRelationship] = [] 
+    
     def _load_yaml(self) -> dict:
         """Load YAML files from the specified directory."""
         yamls = {}

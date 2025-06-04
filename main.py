@@ -3,7 +3,9 @@ import argparse
 from modules.uml_generator import UMLGenerator
 from modules.uml_to_plantuml import UMLToPlantUMLConverter
 import plantuml
-
+import subprocess
+import os
+import sys
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate UML diagrams from OpenAPI schemas.")
@@ -20,9 +22,21 @@ if __name__ == "__main__":
         f.write(pumlstr)
     print(f"PlantUML string generated to {FILENAME}")
 
-    plantuml_server = plantuml.PlantUML(url='http://www.plantuml.com/plantuml')
+    python_executable = sys.executable
+    
+    # Use subprocess to call python -m plantuml directly
     try:
-        plantuml_server.processes_file(FILENAME)
-        print(f"Diagram generated successfully and uploaded to PlantUML server.")
-    except Exception as e:
+        result = subprocess.run(
+            [python_executable, "-m", "plantuml", FILENAME], 
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        print(f"Diagram generated successfully: diagram.png")
+        if os.path.exists("diagram.png"):
+            print(f"File size: {os.path.getsize('diagram.png')} bytes")
+        else:
+            print("Warning: diagram.png was not found")
+    except subprocess.CalledProcessError as e:
         print(f"Failed to generate diagram: {e}")
+        print(f"Error output: {e.stderr}")

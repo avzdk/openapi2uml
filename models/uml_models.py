@@ -19,6 +19,7 @@ class UmlClass(BaseModel):
 class UmlRelationship(BaseModel):
     source: UmlClass
     target: UmlClass
+    name: str | None = None
     type: str = "association"  # or "composition", "aggregation", etc.
     description: str | None = None
     multiplicitySource: str | None = None  # e.g., "1..*", "0..1", etc.

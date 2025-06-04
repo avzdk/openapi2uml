@@ -150,23 +150,23 @@ class Pagination {
     -nextPart : string
     -previousPart : string
 }
-AcademicSession o-- "1" Period
-AcademicTerm o-- "1" Period
-AcademicTerm o-- "1" Period
-AcademicTerm o-- "1" Period
-Course o-- "*" LearningActivity
-Employee o-- "1" OrgPerson
-Employee o-- "1" EntraIdentity
-Employee o-- "*" Employment
-EnrollmentEducation o-- "1" Termination
-EnrollmentSingleCourse o-- "1" Termination
-Location o-- "1" City
-OfferedCourse o-- "1" Course
-OfferedCourse o-- "1" Location
-OfferedCourse o-- "*" OfferedLearningActivity
-OrgPerson o-- "1" Person
-OrgPerson_sensitive o-- "1" Person_sensitive
-Student o-- "1" OrgPerson
-Student o-- "1" EntraIdentity
+AcademicSession o-- "1" Period : period
+AcademicTerm o-- "1" Period : TermPeriod
+AcademicTerm o-- "1" Period : enrolmentPeriod
+AcademicTerm o-- "1" Period : withdrawalPeriod
+Course o-- "*" LearningActivity : LearningActivity
+Employee o-- "1" OrgPerson : orgPerson
+Employee o-- "1" EntraIdentity : entraIdentity
+Employee o-- "*" Employment : employments
+EnrollmentEducation o-- "1" Termination : termination
+EnrollmentSingleCourse o-- "1" Termination : termination
+Location o-- "1" City : city
+OfferedCourse o-- "1" Course : course
+OfferedCourse o-- "1" Location : location
+OfferedCourse o-- "*" OfferedLearningActivity : learningActivitiesOffered
+OrgPerson o-- "1" Person : person
+OrgPerson_sensitive o-- "1" Person_sensitive : person_sensitive
+Student o-- "1" OrgPerson : orgPerson
+Student o-- "1" EntraIdentity : entraIdentity
 
 @enduml

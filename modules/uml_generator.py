@@ -9,7 +9,7 @@ class UMLGenerator:
         self.schema_dir = schema_dir
         self.uml_model : dict[str, UmlClass] = {}
         self.uml_relationships: list[UmlRelationship] = [] 
-    
+
     def _load_yaml(self) -> dict:
         """Load YAML files from the specified directory."""
         yamls = {}
@@ -81,6 +81,7 @@ class UMLGenerator:
                         source=self.uml_model[schema_name],
                         target=self.uml_model[target_class_name],
                         type="aggregation",
+                        name=prop_name,
                         multiplicitySource="1",
                         multiplicityTarget=multiplicityTarget
                     )
@@ -100,6 +101,7 @@ class UMLGenerator:
                         source=self.uml_model[schema_name],
                         target=self.uml_model[target_class_name],
                         type="aggregation",
+                        name=prop_name,
                         multiplicitySource="1",
                         multiplicityTarget="*"
                     )

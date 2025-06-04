@@ -1,0 +1,14 @@
+components:
+  schemas:
+    CourseTypes:
+      description: |
+        DK: Fagelementtyper.
+        ProjectAssignment : Projektopgave
+        projektorienteretforløb : Projektorienteretforløb
+        praktik : Praktik
+
+      
+      type: string
+      enum:
+        - a
+        - b

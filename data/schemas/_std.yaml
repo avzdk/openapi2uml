@@ -1,0 +1,103 @@
+components:
+
+  parameters:
+    limit:
+      description: |
+        Antal elementer pr. side i paginerede svar.
+        Dette parameter bruges til at begrænse antallet af elementer, der returneres i et enkelt svar.
+        Det er muligt at angive 0 for at få oplysninger om det samlede antal elementer i listen uden at returnere selve dataene.        
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 100
+    offset:
+      description: |
+        Antal elementer, der skal springes over i paginerede svar.        
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 0
+
+  schemas:
+    HealthCheck:
+      description: |
+        DK: Helsecheck for systemet.
+        Dette endpoint returnerer en liste over tjek og deres status.
+        Hvert tjek kan have en status af "healthy", "unhealthy" eller "unknown".
+        Hvis et tjek er "unhealthy", kan der være en fejlbesked knyttet til det.
+        Dette endpoint er nyttigt til at overvåge systemets sundhedstilstand og identificere eventuelle problemer.
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          type: string  
+          description: "Samlet status for servicen"
+          example: "healthy"
+          enum:
+            - healthy
+            - unhealthy
+            - unknown
+        checks:
+          type: array
+          description: "Liste over tjek og deres status"
+          items:
+            type: object
+            properties:
+              name:
+                description: "Navn på tjekket"
+                type: string                
+                example: 'Database - databasename'
+              status:
+                description: "Status for tjekket"
+                type: string
+                enum:
+                  - healthy
+                  - unhealthy
+                  - unknown
+                example: "unhealthy"
+              error:
+                type: string
+                example: "Connection timeout"
+    Pagination:
+      description: |
+        DK: Pagineringsinformation for en liste.
+        Dette objekt indeholder oplysninger om den samlede liste, herunder det samlede antal elementer, det samlede antal dele og links til første, sidste, næste og tidligere del af listen.
+        Dette er nyttigt til at navigere i store datasæt og forstå strukturen i paginerede svar.
+      required:
+        - totalRecords
+        - totalParts
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: Antal elementer i den samlede liste.
+          example: 442
+        totalParts:
+          type: integer
+          description: Antal dele i den samlede liste.
+          example: 5
+        firstPart:
+          type: string
+          format: url
+          description: url til første del af listen.
+          example: /students?offset=0&limit=100
+        lastPart:
+          type: string
+          format: url
+          description: url til sidste del af listen.
+          example: /students?offset=400&limit=100
+        nextPart:
+          type: string
+          format: url
+          description: url til næste del af listen.
+          example: /students?offset=300&limit=100
+        previousPart:
+          type: string
+          format: url
+          description: url til seneste del af listen.
+          example: /students?offset=100&limit=100

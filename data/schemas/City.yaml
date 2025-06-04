@@ -1,0 +1,15 @@
+components:
+  schemas:
+    City:
+      type: object
+      description: 'DK: GodkendtUdbudssted'
+      properties:
+        uuid:
+          type: string
+          format: uuid4
+          example: 33534c95-4a93-4726-9575-847e81ea7908
+        name:
+          type: string
+          description: 'DK: GodkendtUdbudsstedsnavn'
+          example: 'Odense'
+

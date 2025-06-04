@@ -1,13 +1,44 @@
 @startuml
+class AcademicSession {
+    -uuid : string
+}
+class AcademicTerm {
+    -uuid : string
+    -name : string
+}
+class Address {
+    #uuid : string
+}
+class DanishAddres {
+    #uuid : string
+    -streetName : string
+    -streetNumber : string
+    -floor : string
+    -door : string
+    -postalCode : string
+}
+class ForeignAddress {
+    #uuid : string
+    -adresse : string
+    -country : string
+}
+class City {
+    -uuid : string
+    -name : string
+}
+class Course {
+    -uuid : string
+    -coursecode : string
+    -activityGroupCode : string
+    -ectsPoints : integer
+    -coursename : string
+}
 class Employee {
     -employeenumber : string
     #uuid : string
     -workMail : string
     -hcmInternalPersonID : string
-    -employments : array
 }
-Employee *-- OrgPerson
-Employee *-- EntraIdentity
 class Employment {
     #uuid : string
     -jobtitle : object
@@ -15,18 +46,47 @@ class Employment {
     -hcmInternalAssignmentID : string
     -OrganizationUnitUUID : string
 }
-enum Language {
+class EnrollmentEducation {
+    #uuid : string
+    #dispensationEnrolment : boolean
+    #OfferedEducationUUID : string
+    #CurriculumUUID : string
+    -LearningProgramPlanUUID : string
+}
+class EnrollmentSingleCourse {
+    #uuid : string
+}
+class EntraIdentity {
+    -userPrincipalName : string
+    #uuid : string
+}
+class LearningActivity {
+    -uuid : string
+    -LearningActivityName : string
+    -LearningActivityDuration : object
+}
+class Location {
+    -uuid : string
+    -name : string
+}
+class OfferedCourse {
+    -uuid : string
+    -capacityMinimum : integer
+    -capacityMaximum : integer
+    -courseDuration : object
+    -academicTermUUID : string
+}
+class OfferedLearningActivity {
+    -uuid : string
+    -LearningActivityDuration : object
 }
 class OrgPerson {
-    +communicationLanguage : unknown
     -nameInOrganization : string
     -uuid : string
     -studentUUID : string
     -employeeUUID : string
 }
-OrgPerson *-- Person
 class OrgPerson_sensitive {
-    +communicationLanguage : unknown
     -nameInOrganization : string
     -uuid : string
     -studentUUID : string
@@ -36,7 +96,6 @@ class OrgPerson_sensitive {
     -privatemail : string
     -privattelefonnr : string
 }
-OrgPerson_sensitive *-- Person_sensitive
 class OrgPersonPicklist {
     -nameInOrganization : string
     -uuid : string
@@ -49,6 +108,11 @@ class OrgPerson_getuuid {
     -birthDate : string
     -privatemail : string
     -privattelefonnr : string
+}
+class Period {
+    -uuid : string
+    -startDate : string
+    -endDate : string
 }
 class Person {
     #firstNames : string
@@ -65,7 +129,44 @@ class Person_sensitive {
     #id : string
     -cpr : string
     -birthDate : string
-    -statsborgerskab : array
 }
+class Student {
+    #studentnumber : string
+    #uuid : string
+    -studentMail : string
+}
+class Termination {
+    -uuid : string
+    #terminationDate : string
+}
+class HealthCheck {
+    #status : string
+}
+class Pagination {
+    #totalRecords : integer
+    #totalParts : integer
+    -firstPart : string
+    -lastPart : string
+    -nextPart : string
+    -previousPart : string
+}
+AcademicSession o-- "1" Period
+AcademicTerm o-- "1" Period
+AcademicTerm o-- "1" Period
+AcademicTerm o-- "1" Period
+Course o-- "*" LearningActivity
+Employee o-- "1" OrgPerson
+Employee o-- "1" EntraIdentity
+Employee o-- "*" Employment
+EnrollmentEducation o-- "1" Termination
+EnrollmentSingleCourse o-- "1" Termination
+Location o-- "1" City
+OfferedCourse o-- "1" Course
+OfferedCourse o-- "1" Location
+OfferedCourse o-- "*" OfferedLearningActivity
+OrgPerson o-- "1" Person
+OrgPerson_sensitive o-- "1" Person_sensitive
+Student o-- "1" OrgPerson
+Student o-- "1" EntraIdentity
 
 @enduml

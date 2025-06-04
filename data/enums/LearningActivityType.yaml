@@ -1,0 +1,19 @@
+components:
+  schemas:
+    LearningActivityType:
+      type: string
+      description: |
+        DK: Læringsaktivitettype.
+        Academic Internship : ProjektorienteretOphold
+        Internship : Praktikophold
+        ProjektActivity : Projektarbejde
+        AcademicSupervision : FagligVejledning
+        Teaching : Undervisning
+
+      enum:
+        - Academic Internship
+        - Internship
+        - ProjektActivity
+        - AcademicSupervision
+        - Teaching
+

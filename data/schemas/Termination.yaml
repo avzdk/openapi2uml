@@ -1,0 +1,20 @@
+components:
+  schemas:
+    Termination:
+      description: 'DK: Udmeldelse'
+      required:
+        - terminationDate
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        terminationDate:
+          description: 'DK: Udmeldelsesdato'
+          type: string
+          format: date
+
+      example:
+        uuid: 2e0ebe3f-1a65-4964-9d63-d04028139fdf
+        terminationDate: 2023-10-01
+        

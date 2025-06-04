@@ -1,0 +1,32 @@
+components:
+  schemas:
+    Course:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid4
+          example: 33534c95-4a93-4726-9575-847e81ea7908
+        courseType:
+          $ref: '../enums/CourseTypes.yaml#/components/schemas/CourseTypes'
+        coursecode:
+          description: 'DK: fagelementkode'
+          type: string
+          eksempel: 'DSM1-23'
+        activityGroupCode:
+          description: 'DK: aktivitetsgruppekode'
+          type: string
+          eksempel: '9928'
+        ectsPoints:
+          description: 'DK: ECTS-point'
+          type: integer
+          example: 10
+        coursename:
+          description: 'DK: fagelementnavn'
+          type: string
+          eksempel: 'Dynamisk stabilitet i mekaniske systemer'
+        LearningActivity:
+          type: array
+          items:
+            $ref: 'LearningActivity.yaml#/components/schemas/LearningActivity'
+        

@@ -3,7 +3,8 @@ from models.uml_models import UmlClass
 
 class UMLToPlantUMLConverter:
     def uml_class_to_plantuml(self, uml_class: UmlClass, uml_model: dict) -> str:
-        """Convert an UML class to PlantUML format."""
+        """Convert an UML class to PlantUML format.
+        """
         puml_str = f"{uml_class.type} {uml_class.name} {{\n"
         puml_str_relationships = ""
         for attr in uml_class.attributes:
@@ -17,13 +18,27 @@ class UMLToPlantUMLConverter:
                 icon = "-" if not attr.required else "#"
                 puml_str += f"    {icon}{attr.name} : {attr.type}\n"
         puml_str += "}\n"
-        puml_str += puml_str_relationships
+        #puml_str += puml_str_relationships
         return puml_str
     
-    def uml_model_to_plantuml(self, uml_model: dict) -> str:
+    def uml_relationship_to_plantuml(self, relationship: UmlClass) -> str:
+        """Convert an UML relationship to PlantUML format."""
+        if relationship.type == "association":
+            return f'{relationship.source.name} *-- {relationship.target.name}\n'
+        elif relationship.type == "inheritance":
+            return f'{relationship.source.name} <|-- {relationship.target.name}\n'
+        elif relationship.type == "aggregation":
+            return f'{relationship.source.name} o-- "{relationship.multiplicityTarget}" {relationship.target.name}\n'
+        else:
+            return ""
+
+    def uml_model_to_plantuml(self, uml_model: dict, uml_relationships: list) -> str:
         puml_str = "@startuml\n"
         for class_name, uml_class in uml_model.items():
-            puml_str += self.uml_class_to_plantuml(uml_class, uml_model)
+            if uml_class.type != "enum":                
+                puml_str += self.uml_class_to_plantuml(uml_class, uml_model)
+        for relationship in uml_relationships:
+            puml_str += self.uml_relationship_to_plantuml(relationship)
         puml_str += "\n@enduml"
         return puml_str
     

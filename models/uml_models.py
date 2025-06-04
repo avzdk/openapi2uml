@@ -15,3 +15,11 @@ class UmlClass(BaseModel):
     type: str = "class"
     attributes: list[UmlClassAttribute] = []
     description: str | None = None
+
+class UmlRelationship(BaseModel):
+    source: UmlClass
+    target: UmlClass
+    type: str = "association"  # or "composition", "aggregation", etc.
+    description: str | None = None
+    multiplicitySource: str | None = None  # e.g., "1..*", "0..1", etc.
+    multiplicityTarget: str | None = None  # e.g., "1..*", "0..1", etc.

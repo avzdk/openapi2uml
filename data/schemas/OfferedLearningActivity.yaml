@@ -1,0 +1,32 @@
+components:
+  schemas:
+    OfferedLearningActivity:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid4
+          example: '33534c95-4a93-4726-9575-847e81ea7908'
+        LearningActivityDuration:
+          description: 'DK: læringsaktivitetsvarighed'
+          type: object
+          properties:
+            duration:
+              type: integer
+              example: 10
+            unit:
+              type: string
+              enum:
+                - hours
+                - days
+                - weeks
+                - months
+                - years
+              example: hours
+            academicSessionUUID:
+              description: 'DK: læringsaktivitetsperiode UUID'
+              type: string
+              format: uuid4
+              example: '33534c95-4a93-4726-9575-847e81ea7908'
+              
+          

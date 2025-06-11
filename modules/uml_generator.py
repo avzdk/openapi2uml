@@ -48,6 +48,7 @@ class UMLGenerator:
             
             elif prop_details.get("$ref"):
                 print(f"Reference type detected for {prop_name}. Skipping for now.")
+                # her springes Enum over
 
             else:
                 attribute = UmlClassAttribute(
@@ -63,6 +64,18 @@ class UMLGenerator:
 
         return uml_class
     
+    def _handle_enum(self, schema_name, prop_name) -> None:
+        print(f"Enum handled detected for {schema_name}.")
+        uc = self.uml_model[schema_name]
+        uc.attributes.append(
+            UmlClassAttribute(
+                name=prop_name,
+                type="enum",
+                required=False
+            )
+        )
+
+    
     def _find_relationships(self, schema_name, schema) -> list[UmlRelationship]:
         """Find relationships between schemas."""
         relationships = []
@@ -70,6 +83,7 @@ class UMLGenerator:
             if "$ref" in prop_details:
                 if "enum" in prop_details.get("$ref", ""):
                     print(f"Enum type detected for {prop_name}.")
+                    self._handle_enum(schema_name, prop_name)
                 else:
                     target_class_name = prop_details["$ref"].split("/")[-1]
                     if prop_details.get("type") == "array":

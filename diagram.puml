@@ -32,6 +32,7 @@ class Course {
     -activityGroupCode : string
     -ectsPoints : integer
     -coursename : string
+    -courseType : enum
 }
 class Employee {
     -employeenumber : string
@@ -52,9 +53,13 @@ class EnrollmentEducation {
     #OfferedEducationUUID : string
     #CurriculumUUID : string
     -LearningProgramPlanUUID : string
+    -enrollmentEducationType : enum
+    -educationSystem : enum
+    -enrollmentStatus : enum
 }
 class EnrollmentSingleCourse {
     #uuid : string
+    -enrollmentStatus : enum
 }
 class EntraIdentity {
     -userPrincipalName : string
@@ -64,6 +69,7 @@ class LearningActivity {
     -uuid : string
     -LearningActivityName : string
     -LearningActivityDuration : object
+    -LearningActivityType : enum
 }
 class Location {
     -uuid : string
@@ -85,6 +91,7 @@ class OrgPerson {
     -uuid : string
     -studentUUID : string
     -employeeUUID : string
+    -communicationLanguage : enum
 }
 class OrgPerson_sensitive {
     -nameInOrganization : string
@@ -95,6 +102,7 @@ class OrgPerson_sensitive {
     -nationalitet : string
     -privatemail : string
     -privattelefonnr : string
+    -communicationLanguage : enum
 }
 class OrgPersonPicklist {
     -nameInOrganization : string
@@ -134,6 +142,7 @@ class Student {
     #studentnumber : string
     #uuid : string
     -studentMail : string
+    -academicStage : enum
 }
 class Termination {
     -uuid : string

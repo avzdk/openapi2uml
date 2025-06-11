@@ -17,6 +17,7 @@ if __name__ == "__main__":
     pluml_converter = UMLToPlantUMLConverter()
     pumlstr = pluml_converter.uml_model_to_plantuml(model, relations)
 
+    
     FILENAME = "diagram.puml"
     with open(FILENAME, "w") as f:
         f.write(pumlstr)

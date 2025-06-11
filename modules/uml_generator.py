@@ -30,7 +30,7 @@ class UMLGenerator:
                         yamls[file] = yaml.safe_load(f)
         return yamls
 
-    def _schema_to_uml_class(self, name, schema) -> UmlClass | list[UmlRelationship]:
+    def _schema_to_uml_class(self, name, schema) -> UmlClass :
         """Convert a schema to an UML class representation.
         and relationships."""
         uml_class = UmlClass(name=name)
@@ -109,7 +109,7 @@ class UMLGenerator:
             
         return relationships
 
-    def generate_uml(self) -> dict | list[UmlRelationship]:
+    def generate_uml(self) -> tuple[dict[str, UmlClass], list[UmlRelationship]]:
         yamls = self._load_yaml_recursive()
         
         for yaml_name, yamldict in yamls.items():

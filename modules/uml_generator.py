@@ -30,9 +30,8 @@ class UMLGenerator:
                         yamls[file] = yaml.safe_load(f)
         return yamls
 
-    def _schema_to_uml_class(self, name, schema) -> UmlClass :
-        """Convert a schema to an UML class representation.
-        and relationships."""
+    def _schema_to_uml_class(self, name: str, schema: dict) -> UmlClass:
+        """Convert a schema to an UML class representation and relationships."""
         uml_class = UmlClass(name=name)
         uml_class.description = schema.get("description", "MISSING")
 
@@ -77,7 +76,8 @@ class UMLGenerator:
 
     
     def _find_relationships(self, schema_name, schema) -> list[UmlRelationship]:
-        """Find relationships between schemas."""
+        """Find relationships between schemas.
+        and handle enum and arrays."""
         relationships = []
         for prop_name, prop_details in schema.get("properties", {}).items():
             if "$ref" in prop_details:
@@ -133,6 +133,7 @@ class UMLGenerator:
                 uml_class = self._schema_to_uml_class(schema_name, schema)
                 self.uml_model[schema_name] = uml_class
         # Iterate through each schema in the YAML file and find relationships
+        # handles enum and arrays
         for yaml_name, yamldict in yamls.items():
             schemas = yamldict['components']['schemas']
             for schema_name, schema in schemas.items():

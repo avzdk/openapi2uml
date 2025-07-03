@@ -10,6 +10,7 @@ import sys
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate UML diagrams from OpenAPI schemas.")
     parser.add_argument("schema_dir", type=str, help="Path to the directory containing OpenAPI schemas.")
+    parser.add_argument("--filename", "-f", type=str, default="diagram", help="Base filename for output files (without extension). Default: diagram")
     args = parser.parse_args()
 
     uml_generator = UMLGenerator(args.schema_dir)
@@ -18,7 +19,7 @@ if __name__ == "__main__":
     pumlstr = pluml_converter.uml_model_to_plantuml(model, relations)
 
     
-    FILENAME = "diagram.puml"
+    FILENAME = f"{args.filename}.puml"
     with open(FILENAME, "w") as f:
         f.write(pumlstr)
     print(f"PlantUML string generated to {FILENAME}")
@@ -33,11 +34,11 @@ if __name__ == "__main__":
             capture_output=True,
             text=True
         )
-        print(f"Diagram generated successfully: diagram.png")
-        if os.path.exists("diagram.png"):
-            print(f"File size: {os.path.getsize('diagram.png')} bytes")
+        print(f"Diagram generated successfully: {args.filename}.png")
+        if os.path.exists(f"{args.filename}.png"):
+            print(f"File size: {os.path.getsize(f'{args.filename}.png')} bytes")
         else:
-            print("Warning: diagram.png was not found")
+            print(f"Warning: {args.filename}.png was not found")
     except subprocess.CalledProcessError as e:
         print(f"Failed to generate diagram: {e}")
         print(f"Error output: {e.stderr}")

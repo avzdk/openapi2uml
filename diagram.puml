@@ -32,11 +32,11 @@ abstract class Anyofrelation {
 Aext o-- "1" B : single_relation
 Aext o-- "*" C : multi_relation
 Aext o-- "1" Oneofrelation : oneof_relation
-D --|> Oneofrelation
-E --|> Oneofrelation
+Oneofrelation <|-- D
+Oneofrelation <|-- E
 Aext o-- "*" Anyofrelation : anyof_relation
-F --|> Anyofrelation
-G --|> Anyofrelation
-Aext --|> A
+Anyofrelation <|-- F
+Anyofrelation <|-- G
+A <|-- Aext
 
 @enduml

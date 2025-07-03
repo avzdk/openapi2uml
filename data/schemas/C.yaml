@@ -1,0 +1,14 @@
+components:
+  schemas:
+    C:
+      description: 'Schema eksempel C'
+      required:
+        - uuid
+      type: object
+      properties:
+        att1:
+          description: 'attribut'
+          type: string
+        
+
+    

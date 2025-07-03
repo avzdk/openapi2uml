@@ -1,181 +1,23 @@
 @startuml
-class AcademicSession {
-    -uuid : string
-}
-class AcademicTerm {
-    -uuid : string
-    -name : string
-}
-class Address {
-    #uuid : string
-}
-class DanishAddres {
-    #uuid : string
-    -streetName : string
-    -streetNumber : string
-    -floor : string
-    -door : string
-    -postalCode : string
-}
-class ForeignAddress {
-    #uuid : string
-    -adresse : string
-    -country : string
-}
-class City {
-    -uuid : string
-    -name : string
-}
-class Course {
-    -uuid : string
-    -coursecode : string
-    -activityGroupCode : string
-    -ectsPoints : integer
-    -coursename : string
-    -courseType : enum
-}
-class Employee {
+class A {
     -employeenumber : string
     #uuid : string
-    -workMail : string
-    -hcmInternalPersonID : string
+    -oneof_relation : object
+    -enumeration : enum
 }
-class Employment {
-    #uuid : string
-    -jobtitle : object
-    -staffcategory : object
-    -hcmInternalAssignmentID : string
-    -OrganizationUnitUUID : string
+class B {
+    -att1 : string
 }
-class EnrollmentEducation {
-    #uuid : string
-    #dispensationEnrolment : boolean
-    #OfferedEducationUUID : string
-    #CurriculumUUID : string
-    -LearningProgramPlanUUID : string
-    -enrollmentEducationType : enum
-    -educationSystem : enum
-    -enrollmentStatus : enum
+class C {
+    -att1 : string
 }
-class EnrollmentSingleCourse {
-    #uuid : string
-    -enrollmentStatus : enum
+class D {
+    -att1 : string
 }
-class EntraIdentity {
-    -userPrincipalName : string
-    #uuid : string
+class E {
+    -att1 : string
 }
-class LearningActivity {
-    -uuid : string
-    -LearningActivityName : string
-    -LearningActivityDuration : object
-    -LearningActivityType : enum
-}
-class Location {
-    -uuid : string
-    -name : string
-}
-class OfferedCourse {
-    -uuid : string
-    -capacityMinimum : integer
-    -capacityMaximum : integer
-    -courseDuration : object
-    -academicTermUUID : string
-}
-class OfferedLearningActivity {
-    -uuid : string
-    -LearningActivityDuration : object
-}
-class OrgPerson {
-    -nameInOrganization : string
-    -uuid : string
-    -studentUUID : string
-    -employeeUUID : string
-    -communicationLanguage : enum
-}
-class OrgPerson_sensitive {
-    -nameInOrganization : string
-    -uuid : string
-    -studentUUID : string
-    -employeeUUID : string
-    -photoUUID : string
-    -nationalitet : string
-    -privatemail : string
-    -privattelefonnr : string
-    -communicationLanguage : enum
-}
-class OrgPersonPicklist {
-    -nameInOrganization : string
-    -uuid : string
-}
-class OrgPerson_getuuid {
-    -firstNames : string
-    -middleNames : string
-    -lastName : string
-    -cpr : string
-    -birthDate : string
-    -privatemail : string
-    -privattelefonnr : string
-}
-class Period {
-    -uuid : string
-    -startDate : string
-    -endDate : string
-}
-class Person {
-    #firstNames : string
-    -middleNames : string
-    #lastName : string
-    #nameAndAddressShilding : boolean
-    #id : string
-}
-class Person_sensitive {
-    #firstNames : string
-    -middleNames : string
-    #lastName : string
-    #nameAndAddressShilding : boolean
-    #id : string
-    -cpr : string
-    -birthDate : string
-}
-class Student {
-    #studentnumber : string
-    #uuid : string
-    -studentMail : string
-    -academicStage : enum
-}
-class Termination {
-    -uuid : string
-    #terminationDate : string
-}
-class HealthCheck {
-    #status : string
-}
-class Pagination {
-    #totalRecords : integer
-    #totalParts : integer
-    -firstPart : string
-    -lastPart : string
-    -nextPart : string
-    -previousPart : string
-}
-AcademicSession o-- "1" Period : period
-AcademicTerm o-- "1" Period : TermPeriod
-AcademicTerm o-- "1" Period : enrolmentPeriod
-AcademicTerm o-- "1" Period : withdrawalPeriod
-Course o-- "*" LearningActivity : LearningActivity
-Employee o-- "1" OrgPerson : orgPerson
-Employee o-- "1" EntraIdentity : entraIdentity
-Employee o-- "*" Employment : employments
-EnrollmentEducation o-- "1" Termination : termination
-EnrollmentSingleCourse o-- "1" Termination : termination
-Location o-- "1" City : city
-OfferedCourse o-- "1" Course : course
-OfferedCourse o-- "1" Location : location
-OfferedCourse o-- "*" OfferedLearningActivity : learningActivitiesOffered
-OrgPerson o-- "1" Person : person
-OrgPerson_sensitive o-- "1" Person_sensitive : person_sensitive
-Student o-- "1" OrgPerson : orgPerson
-Student o-- "1" EntraIdentity : entraIdentity
+A o-- "1" B : single_relation
+A o-- "*" C : multi_releatiion
 
 @enduml

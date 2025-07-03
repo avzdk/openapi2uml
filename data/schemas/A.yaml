@@ -1,0 +1,35 @@
+components:
+  schemas:
+    A:
+      description: 'Schema eksempel A'
+      required:
+        - uuid
+      type: object
+      properties:
+        employeenumber:
+          description: 'DK: medarbejdernummer'
+          type: string
+        uuid:
+          type: string
+          format: uuid
+        enumeration:
+          $ref: '../enums/MyEnum.yaml#/components/schemas/MyEnum'
+        single_relation:
+          $ref: './B.yaml#/components/schemas/B'
+        
+        multi_releatiion:
+          type: array
+          items:
+            $ref: './C.yaml#/components/schemas/C'
+
+        oneof_relation:
+            type: object
+            description: 'DK: Indskrivning'
+            oneOf:
+              - $ref: './D.yaml#/components/schemas/D'
+              - $ref: './E.yaml#/components/schemas/E'
+              
+
+      
+
+    

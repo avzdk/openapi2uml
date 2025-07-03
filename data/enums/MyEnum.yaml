@@ -1,0 +1,10 @@
+components:
+  schemas:
+    MyEnum:
+      type: string
+      description: |
+        Enumeration eksempel
+      enum:
+        - option1
+        - option2
+        

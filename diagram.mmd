@@ -1,0 +1,52 @@
+classDiagram
+    class A {
+        -att0 : string
+    }
+
+    class Aext {
+        -att1 : string
+        -att2 : string(uuid)
+        -enumeration : enum
+    }
+
+    class B {
+        -att3 : string
+    }
+
+    class C {
+        -att4 : string
+    }
+
+    class D {
+        -att5 : string
+    }
+
+    class E {
+        -att6 : string
+    }
+
+    class F {
+        -att5 : string
+    }
+
+    class G {
+        -att5 : string
+    }
+
+    class Oneofrelation {
+    }
+    Oneofrelation : <<abstract>>
+
+    class Anyofrelation {
+    }
+    Anyofrelation : <<abstract>>
+
+    Aext o-- "1" B :  single_relation
+    Aext o-- "*" C :  multi_relation
+    Aext o-- "1" Oneofrelation :  oneof_relation
+    Oneofrelation <|-- D
+    Oneofrelation <|-- E
+    Aext o-- "*" Anyofrelation :  anyof_relation
+    Anyofrelation <|-- F
+    Anyofrelation <|-- G
+    A <|-- Aext

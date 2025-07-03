@@ -120,24 +120,26 @@ class UMLGenerator:
                         multiplicityTarget="*"
                     )
                     relationships.append(relationship)
-            elif prop_details.get("oneOf") is not None:
-                print(f"OneOf type detected for {prop_name}.")
+            elif prop_details.get("oneOf") is not None or prop_details.get("anyOf") is not None:
+                print(f"OneOf / AnyOf type detected for {prop_name}.")
                 # Create a new abstract class for the oneOf relationship
-                abstract_class_name = self._create_oneof_abstract_class(prop_name, prop_details["oneOf"])
-                
+                abstract_class_name = self._create_oneof_abstract_class(prop_name, prop_details.get("oneOf", []) + prop_details.get("anyOf", []))                
                 # Create aggregation relationship to the abstract class
+                # Set multiplicity based on whether it's oneOf (1) or anyOf (*)
+                multiplicity_target = "*" if prop_details.get("anyOf") is not None else "1"
                 relationship = UmlRelationship(
                     source=self.uml_model[schema_name],
                     target=self.uml_model[abstract_class_name],
                     type="aggregation",
                     name=prop_name,
                     multiplicitySource="1",
-                    multiplicityTarget="1"
+                    multiplicityTarget=multiplicity_target
                 )
                 relationships.append(relationship)
                 
                 # Create inheritance relationships from concrete classes to abstract class
-                for one_of in prop_details["oneOf"]:
+
+                for one_of in prop_details.get("oneOf", []) + prop_details.get("anyOf", []):
                     if "$ref" in one_of:
                         target_class_name = one_of["$ref"].split("/")[-1]
                         inheritance_relationship = UmlRelationship(

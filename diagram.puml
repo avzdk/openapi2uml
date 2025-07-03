@@ -1,5 +1,8 @@
 @startuml
 class A {
+    -att0 : string
+}
+class Aext {
     -att1 : string
     -att2 : string
     -enumeration : enum
@@ -26,13 +29,14 @@ abstract class Oneofrelation {
 }
 abstract class Anyofrelation {
 }
-A o-- "1" B : single_relation
-A o-- "*" C : multi_relation
-A o-- "1" Oneofrelation : oneof_relation
+Aext o-- "1" B : single_relation
+Aext o-- "*" C : multi_relation
+Aext o-- "1" Oneofrelation : oneof_relation
 D --|> Oneofrelation
 E --|> Oneofrelation
-A o-- "*" Anyofrelation : anyof_relation
+Aext o-- "*" Anyofrelation : anyof_relation
 F --|> Anyofrelation
 G --|> Anyofrelation
+Aext --|> A
 
 @enduml

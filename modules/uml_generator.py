@@ -177,6 +177,27 @@ class UMLGenerator:
         
         return abstract_class_name
 
+    def _find_allof_relationships(self, schema_name: str, schema: dict) -> list[UmlRelationship]:
+        """Find allOf inheritance relationships."""
+        relationships = []
+        if "allOf" in schema:
+            print(f"AllOf detected for {schema_name}.")
+            for all_of_item in schema["allOf"]:
+                if "$ref" in all_of_item:
+                    target_class_name = all_of_item["$ref"].split("/")[-1]
+                    # Create inheritance relationship (child inherits from parent)
+                    inheritance_relationship = UmlRelationship(
+                        source=self.uml_model[schema_name],  # Child class
+                        target=self.uml_model[target_class_name],  # Parent class
+                        type="generalization",
+                        name=None,
+                        multiplicitySource=None,
+                        multiplicityTarget=None
+                    )
+                    relationships.append(inheritance_relationship)
+                    print(f"Created inheritance: {schema_name} inherits from {target_class_name}")
+        return relationships
+
     def generate_uml(self) -> tuple[dict[str, UmlClass], list[UmlRelationship]]:
         yamls = self._load_yaml_recursive()
         
@@ -193,5 +214,7 @@ class UMLGenerator:
             for schema_name, schema in schemas.items():
                 relationships = self._find_relationships(schema_name, schema)
                 self.uml_relationships.extend(relationships)
+                allof_relationships = self._find_allof_relationships(schema_name, schema)
+                self.uml_relationships.extend(allof_relationships)
         return self.uml_model, self.uml_relationships
 

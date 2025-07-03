@@ -1,7 +1,19 @@
 components:
   schemas:
+  # Eksempel på en schema definition
+
     A:
       description: 'Schema eksempel A'
+      type: object
+      properties:
+        att0:
+          description: 'Almindelig attribut'
+          type: string
+
+    Aext:
+      allOf:
+      - $ref: '#/components/schemas/A'
+      description: 'Schema eksempel A extended'
       required:
         - uuid
       type: object

@@ -120,8 +120,55 @@ class UMLGenerator:
                         multiplicityTarget="*"
                     )
                     relationships.append(relationship)
+            elif prop_details.get("oneOf") is not None:
+                print(f"OneOf type detected for {prop_name}.")
+                # Create a new abstract class for the oneOf relationship
+                abstract_class_name = self._create_oneof_abstract_class(prop_name, prop_details["oneOf"])
+                
+                # Create aggregation relationship to the abstract class
+                relationship = UmlRelationship(
+                    source=self.uml_model[schema_name],
+                    target=self.uml_model[abstract_class_name],
+                    type="aggregation",
+                    name=prop_name,
+                    multiplicitySource="1",
+                    multiplicityTarget="1"
+                )
+                relationships.append(relationship)
+                
+                # Create inheritance relationships from concrete classes to abstract class
+                for one_of in prop_details["oneOf"]:
+                    if "$ref" in one_of:
+                        target_class_name = one_of["$ref"].split("/")[-1]
+                        inheritance_relationship = UmlRelationship(
+                            source=self.uml_model[target_class_name],
+                            target=self.uml_model[abstract_class_name],
+                            type="generalization",
+                            name=None,
+                            multiplicitySource=None,
+                            multiplicityTarget=None
+                        )
+                        relationships.append(inheritance_relationship)
+
             
         return relationships
+
+    def _create_oneof_abstract_class(self, prop_name: str, one_of_refs: list) -> str:
+        """Create an abstract class for oneOf relationships."""
+        # Create a class name based on the property name
+        abstract_class_name = f"{prop_name.replace('_', '').title()}"
+        
+        # Check if the abstract class already exists
+        if abstract_class_name not in self.uml_model:
+            abstract_class = UmlClass(
+                name=abstract_class_name,
+                type="abstract",
+                description=f"Abstract class for oneOf property '{prop_name}'"
+            )
+            self.uml_model[abstract_class_name] = abstract_class
+            print(f"Created abstract class: {abstract_class_name}")
+        
+        return abstract_class_name
 
     def generate_uml(self) -> tuple[dict[str, UmlClass], list[UmlRelationship]]:
         yamls = self._load_yaml_recursive()

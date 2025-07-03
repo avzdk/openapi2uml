@@ -1,0 +1,55 @@
+openapi: 3.0.3
+info:
+  title: Eksempel
+  description: Eksmempel
+  version: 1.0.2
+  contact:
+    name: "Eksmpel"
+
+servers:
+  - url: https://api.example.com/v1_0_0
+
+tags:
+  - name: MyTag
+    description: Eksempåel
+
+paths:
+
+  /path1:
+    get:
+      tags:
+        - MyTag
+      description: Hent oplysninger
+      summary: Søg efter oplysninger
+      operationId: hentOplysninger
+      
+      responses:
+        '200':
+          description: Successful response data
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: './schemas/A.yaml#/components/schemas/A' 
+  /path2:
+    get:
+      tags:
+        - MyTag
+      description: Hent oplysninger
+      summary: Søg efter oplysninger
+      operationId: hentOplysningerExt    
+      responses:
+        '200':
+          description: Successful response data
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: './schemas/A.yaml#/components/schemas/Aext'       
+

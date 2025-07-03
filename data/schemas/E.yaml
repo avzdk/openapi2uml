@@ -6,7 +6,7 @@ components:
         - uuid
       type: object
       properties:
-        att1:
+        att6:
           description: 'attribut'
           type: string
         

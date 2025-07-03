@@ -6,10 +6,11 @@ components:
         - uuid
       type: object
       properties:
-        employeenumber:
-          description: 'DK: medarbejdernummer'
+        att1:
+          description: 'Almindelig attribut'
           type: string
-        uuid:
+        att2:
+          description: 'Almindelig attribut med format'
           type: string
           format: uuid
         enumeration:
@@ -17,18 +18,23 @@ components:
         single_relation:
           $ref: './B.yaml#/components/schemas/B'
         
-        multi_releatiion:
+        multi_relation:
           type: array
           items:
             $ref: './C.yaml#/components/schemas/C'
 
         oneof_relation:
             type: object
-            description: 'DK: Indskrivning'
+            description: 'Relation til enten D eller E'
             oneOf:
               - $ref: './D.yaml#/components/schemas/D'
               - $ref: './E.yaml#/components/schemas/E'
-              
+        anyof_relation:
+            type: object
+            description: 'Relation til enten D eller E'
+            anyOf:
+              - $ref: './F.yaml#/components/schemas/F'
+              - $ref: './G.yaml#/components/schemas/G'              
 
       
 

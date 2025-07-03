@@ -1,23 +1,38 @@
 @startuml
 class A {
-    -employeenumber : string
-    #uuid : string
-    -oneof_relation : object
+    -att1 : string
+    -att2 : string
     -enumeration : enum
 }
 class B {
-    -att1 : string
+    -att3 : string
 }
 class C {
-    -att1 : string
+    -att4 : string
 }
 class D {
-    -att1 : string
+    -att5 : string
 }
 class E {
-    -att1 : string
+    -att6 : string
+}
+class F {
+    -att5 : string
+}
+class G {
+    -att5 : string
+}
+abstract class Oneofrelation {
+}
+abstract class Anyofrelation {
 }
 A o-- "1" B : single_relation
-A o-- "*" C : multi_releatiion
+A o-- "*" C : multi_relation
+A o-- "1" Oneofrelation : oneof_relation
+D --|> Oneofrelation
+E --|> Oneofrelation
+A o-- "*" Anyofrelation : anyof_relation
+F --|> Anyofrelation
+G --|> Anyofrelation
 
 @enduml

@@ -48,6 +48,11 @@ class UMLGenerator:
             elif prop_details.get("$ref"):
                 print(f"Reference type detected for {prop_name}. Skipping for now.")
                 # her springes Enum over
+            elif prop_details.get("oneOf"):
+                print(f"OneOf type detected for {prop_name}.")
+
+            elif prop_details.get("anyOf"):
+                print(f"AnyOf type detected for {prop_name}.")
 
             else:
                 attribute = UmlClassAttribute(

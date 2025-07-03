@@ -1,7 +1,7 @@
 components:
   schemas:
-    D:
-      description: 'Schema eksempel D'
+    F:
+      description: 'Schema eksempel F'
       required:
         - uuid
       type: object

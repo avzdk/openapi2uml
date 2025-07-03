@@ -27,7 +27,9 @@ class UMLGenerator:
                 if file.endswith(".yaml"):
                     with open(os.path.join(root, file), 'r', encoding='utf-8') as f:
                         print(f"Loading YAML file: {file}")
-                        yamls[file] = yaml.safe_load(f)
+                        loaded = yaml.safe_load(f)
+                        if 'components' in loaded and 'schemas' in loaded['components']:
+                            yamls[file] = loaded
         return yamls
 
     def _schema_to_uml_class(self, name: str, schema: dict) -> UmlClass:

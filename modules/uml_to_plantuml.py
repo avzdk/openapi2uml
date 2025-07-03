@@ -28,7 +28,7 @@ class UMLToPlantUMLConverter:
         if relationship.type == "association":
             return f'{relationship.source.name} *-- {relationship.target.name}\n'
         elif relationship.type == "inheritance" or relationship.type == "generalization":
-            return f'{relationship.source.name} --|> {relationship.target.name}\n'
+            return f'{relationship.target.name} <|-- {relationship.source.name}\n'
         elif relationship.type == "aggregation":
             return f'{relationship.source.name} o-- "{relationship.multiplicityTarget}" {relationship.target.name} : {relationship.name}\n'
         else:

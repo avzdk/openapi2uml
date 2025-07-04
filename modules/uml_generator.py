@@ -220,13 +220,13 @@ class UMLGenerator:
         """
         Opretter en abstrakt klasse for oneOf/anyOf relationships.
         
-        Baseret på property navnet oprettes en abstrakt klasse der fungerer som
-        parent for alle de konkrete klasser i oneOf/anyOf listen. Klasse navnet
-        genereres ved at fjerne underscores og capitalize property navnet.
+        Navnet på den abstrakte klasse bestemmes ved:
+        1. Først: Find fælles prefix blandt de konkrete klassnavne (mindst 2 karakterer)
+        2. Fallback: Brug property navnet hvis intet fælles prefix findes
         
         Args:
-            prop_name (str): Navnet på property'en der har oneOf/anyOf
-            one_of_refs (list): Liste af references (bruges kun til dokumentation)
+            prop_name (str): Navnet på property'en der har oneOf/anyOf (fallback navn)
+            one_of_refs (list): Liste af $ref objekter der peger på konkrete klasser
             
         Returns:
             str: Navnet på den oprettede (eller eksisterende) abstrakte klasse
@@ -234,20 +234,36 @@ class UMLGenerator:
         Side effects:
             - Opretter ny UmlClass med type="abstract" hvis den ikke eksisterer
             - Tilføjer klassen til self.uml_model
-            - Printer besked om oprettelse af abstrakt klasse
+            - Printer besked om oprettelse af abstrakt klasse og navngivningsstrategi
             
         Eksempel:
-            prop_name="oneof_relation" -> abstract_class_name="OneofRelation"
+            Klasser: ["SpecD", "SpecE"] -> abstract_class_name="Spec"
+            Klasser: ["A", "B"] -> abstract_class_name="OneofRelation" (fra prop_name)
         """
-        # Create a class name based on the property name
-        abstract_class_name = f"{prop_name.replace('_', '').title()}"
+        # Extract class names from references
+        class_names = []
+        for ref in one_of_refs:
+            if "$ref" in ref:
+                class_name = ref["$ref"].split("/")[-1]
+                class_names.append(class_name)
+        
+        # Try to find common prefix among class names
+        common_prefix = self._find_common_prefix(class_names)
+        
+        if common_prefix:
+            abstract_class_name = common_prefix
+            print(f"Using common prefix '{common_prefix}' from classes {class_names} for abstract class")
+        else:
+            # Fallback to property name
+            abstract_class_name = f"{prop_name.replace('_', '').title()}"
+            print(f"No common prefix found in classes {class_names}, using property name '{prop_name}' -> '{abstract_class_name}'")
         
         # Check if the abstract class already exists
         if abstract_class_name not in self.uml_model:
             abstract_class = UmlClass(
                 name=abstract_class_name,
                 type="abstract",
-                description=f"Abstract class for oneOf property '{prop_name}'"
+                description=f"Abstract class for oneOf/anyOf property '{prop_name}' generalizing {class_names}"
             )
             self.uml_model[abstract_class_name] = abstract_class
             print(f"Created abstract class: {abstract_class_name}")
@@ -417,6 +433,42 @@ class UMLGenerator:
                 relationships.append(relationship)
         
         return relationships
+
+    def _find_common_prefix(self, class_names: list[str]) -> str:
+        """
+        Finder det fælles prefix blandt en liste af klassnavne.
+        
+        Args:
+            class_names (list[str]): Liste af klassnavne
+            
+        Returns:
+            str: Det fælles prefix, eller tom streng hvis ingen fælles prefix
+            
+        Eksempel:
+            ["SpecD", "SpecE"] -> "Spec"
+            ["ClassA", "ClassB"] -> "Class"
+            ["PersonInfo", "PersonData"] -> "Person"
+            ["A", "B"] -> ""
+        """
+        if not class_names or len(class_names) < 2:
+            return ""
+        
+        # Find det korteste navn for at undgå index fejl
+        min_length = min(len(name) for name in class_names)
+        if min_length == 0:
+            return ""
+        
+        # Find fælles prefix
+        common_prefix = ""
+        for i in range(min_length):
+            char = class_names[0][i]
+            if all(name[i] == char for name in class_names):
+                common_prefix += char
+            else:
+                break
+        
+        # Kun returner prefix hvis det er meningsfuldt (mindst 2 karakterer)
+        return common_prefix if len(common_prefix) >= 2 else ""
 
     def generate_uml(self) -> tuple[dict[str, UmlClass], list[UmlRelationship]]:
         """

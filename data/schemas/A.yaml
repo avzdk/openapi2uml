@@ -45,8 +45,8 @@ components:
             type: object
             description: 'Relation til enten D eller E'
             oneOf:
-              - $ref: './D.yaml#/components/schemas/D'
-              - $ref: './E.yaml#/components/schemas/E'
+              - $ref: './SpecD.yaml#/components/schemas/SpecD'
+              - $ref: './SpecE.yaml#/components/schemas/SpecE'
         anyof_relation:
             type: object
             description: 'Relation til enten D eller E'

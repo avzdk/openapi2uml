@@ -1,6 +1,6 @@
 components:
   schemas:
-    E:
+    SpecE:
       description: 'Schema eksempel E'
       required:
         - uuid

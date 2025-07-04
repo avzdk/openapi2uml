@@ -17,14 +17,6 @@ classDiagram
         -att4 : string
     }
 
-    class D {
-        -att5 : string
-    }
-
-    class E {
-        -att6 : string
-    }
-
     class F {
         -att5 : string
     }
@@ -41,11 +33,19 @@ classDiagram
         -att5 : string
     }
 
+    class SpecD {
+        -att5 : string
+    }
+
+    class SpecE {
+        -att6 : string
+    }
+
     class Multianyofrelation
     Multianyofrelation : <<abstract>>
 
-    class Oneofrelation
-    Oneofrelation : <<abstract>>
+    class Spec
+    Spec : <<abstract>>
 
     class Anyofrelation
     Anyofrelation : <<abstract>>
@@ -55,9 +55,9 @@ classDiagram
     Multianyofrelation <|-- H
     Aext o-- "1" B :  single_relation
     Aext o-- "*" C :  multi_relation
-    Aext o-- "1" Oneofrelation :  oneof_relation
-    Oneofrelation <|-- D
-    Oneofrelation <|-- E
+    Aext o-- "1" Spec :  oneof_relation
+    Spec <|-- SpecD
+    Spec <|-- SpecE
     Aext o-- "*" Anyofrelation :  anyof_relation
     Anyofrelation <|-- F
     Anyofrelation <|-- G

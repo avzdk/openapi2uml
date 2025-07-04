@@ -25,10 +25,21 @@ class F {
 class G {
     -att5 : string
 }
+class H {
+    -att5 : string
+}
+class I {
+    -att5 : string
+}
+abstract class Multianyofrelation {
+}
 abstract class Oneofrelation {
 }
 abstract class Anyofrelation {
 }
+Aext o-- "*" Multianyofrelation : multi_anyof_relation
+Multianyofrelation <|-- I
+Multianyofrelation <|-- H
 Aext o-- "1" B : single_relation
 Aext o-- "*" C : multi_relation
 Aext o-- "1" Oneofrelation : oneof_relation

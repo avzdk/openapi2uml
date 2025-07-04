@@ -18,6 +18,12 @@ components:
         - uuid
       type: object
       properties:
+        multi_anyof_relation:
+          type: array
+          items:
+            anyOf:
+              - $ref: './I.yaml#/components/schemas/I'
+              - $ref: './H.yaml#/components/schemas/H'       
         att1:
           description: 'Almindelig attribut'
           type: string
@@ -46,7 +52,8 @@ components:
             description: 'Relation til enten D eller E'
             anyOf:
               - $ref: './F.yaml#/components/schemas/F'
-              - $ref: './G.yaml#/components/schemas/G'              
+              - $ref: './G.yaml#/components/schemas/G'       
+
 
       
 

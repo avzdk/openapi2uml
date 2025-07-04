@@ -33,6 +33,18 @@ classDiagram
         -att5 : string
     }
 
+    class H {
+        -att5 : string
+    }
+
+    class I {
+        -att5 : string
+    }
+
+    class Multianyofrelation {
+    }
+    Multianyofrelation : <<abstract>>
+
     class Oneofrelation {
     }
     Oneofrelation : <<abstract>>
@@ -41,6 +53,9 @@ classDiagram
     }
     Anyofrelation : <<abstract>>
 
+    Aext o-- "*" Multianyofrelation :  multi_anyof_relation
+    Multianyofrelation <|-- I
+    Multianyofrelation <|-- H
     Aext o-- "1" B :  single_relation
     Aext o-- "*" C :  multi_relation
     Aext o-- "1" Oneofrelation :  oneof_relation

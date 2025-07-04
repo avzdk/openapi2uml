@@ -110,8 +110,62 @@ class UMLGenerator:
             elif prop_details.get("type") == "array":
                 if prop_details.get("items", {}).get("anyOf") is not None:
                     print(f"Array type with AnyOf detected for {prop_name}.")
+                    # Create abstract class for anyOf in array
+                    abstract_class_name = self._create_oneof_abstract_class(prop_name, prop_details["items"]["anyOf"])
+                    
+                    # Create aggregation relationship to the abstract class with multiplicity *
+                    relationship = UmlRelationship(
+                        source=self.uml_model[schema_name],
+                        target=self.uml_model[abstract_class_name],
+                        type="aggregation",
+                        name=prop_name,
+                        multiplicitySource="1",
+                        multiplicityTarget="*"
+                    )
+                    relationships.append(relationship)
+                    
+                    # Create inheritance relationships from concrete classes to abstract class
+                    for any_of in prop_details["items"]["anyOf"]:
+                        if "$ref" in any_of:
+                            target_class_name = any_of["$ref"].split("/")[-1]
+                            inheritance_relationship = UmlRelationship(
+                                source=self.uml_model[target_class_name],
+                                target=self.uml_model[abstract_class_name],
+                                type="generalization",
+                                name=None,
+                                multiplicitySource=None,
+                                multiplicityTarget=None
+                            )
+                            relationships.append(inheritance_relationship)
                 elif prop_details.get("items", {}).get("oneOf") is not None:
                     print(f"Array type with OneOf detected for {prop_name}.")
+                    # Create abstract class for oneOf in array
+                    abstract_class_name = self._create_oneof_abstract_class(prop_name, prop_details["items"]["oneOf"])
+                    
+                    # Create aggregation relationship to the abstract class with multiplicity *
+                    relationship = UmlRelationship(
+                        source=self.uml_model[schema_name],
+                        target=self.uml_model[abstract_class_name],
+                        type="aggregation",
+                        name=prop_name,
+                        multiplicitySource="1",
+                        multiplicityTarget="*"
+                    )
+                    relationships.append(relationship)
+                    
+                    # Create inheritance relationships from concrete classes to abstract class
+                    for one_of in prop_details["items"]["oneOf"]:
+                        if "$ref" in one_of:
+                            target_class_name = one_of["$ref"].split("/")[-1]
+                            inheritance_relationship = UmlRelationship(
+                                source=self.uml_model[target_class_name],
+                                target=self.uml_model[abstract_class_name],
+                                type="generalization",
+                                name=None,
+                                multiplicitySource=None,
+                                multiplicityTarget=None
+                            )
+                            relationships.append(inheritance_relationship)
                 elif prop_details.get("items", {}).get("AllOf") is not None:
                     print(f"Array type with AllOf detected for {prop_name}.")
                 elif prop_details.get("items", {}).get("$ref") is not None:  

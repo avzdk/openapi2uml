@@ -1,0 +1,14 @@
+components:
+  schemas:
+   H:
+      description: 'Schema eksempel H'
+      required:
+        - uuid
+      type: object
+      properties:
+        att5:
+          description: 'attribut'
+          type: string
+        
+
+    

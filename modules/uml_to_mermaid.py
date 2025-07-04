@@ -77,13 +77,19 @@ class UMLToMermaidConverter:
         """Convert complete UML model to Mermaid Class Diagram format."""
         mermaid_str = "classDiagram\n"
         
-        # Add all classes (including abstract classes, but exclude enums as separate classes)
+        # Add only classes that have attributes or are not abstract/empty
         for class_name, uml_class in uml_model.items():
-            if uml_class.type not in ["enum"]:  # Include abstract classes
-                mermaid_str += self.uml_class_to_mermaid(uml_class, uml_model)
-                mermaid_str += "\n"
+            if uml_class.type not in ["enum"]:  # Exclude enums as separate classes
+                # Only add class definition if it has attributes
+                if uml_class.attributes:
+                    mermaid_str += self.uml_class_to_mermaid(uml_class, uml_model)
+                    mermaid_str += "\n"
+                elif uml_class.type == "abstract":
+                    # For abstract classes without attributes, only add the annotation
+                    mermaid_str += f"    class {class_name}\n"
+                    mermaid_str += f"    {class_name} : <<abstract>>\n\n"
         
-        # Add relationships
+        # Add relationships (this will implicitly reference classes without definitions)
         for relationship in uml_relationships:
             mermaid_str += self.uml_relationship_to_mermaid(relationship)
         

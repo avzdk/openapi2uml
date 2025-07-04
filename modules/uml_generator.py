@@ -5,13 +5,40 @@ import yaml
 from modules.uml_to_plantuml import UMLToPlantUMLConverter
 
 class UMLGenerator:
+    """
+    Hovedklasse for at generere UML modeller fra OpenAPI schema filer.
+    
+    Denne klasse håndterer indlæsning af YAML filer, konvertering til UML klasser,
+    og oprettelse af relationships mellem klasserne baseret på OpenAPI specifikationer.
+    
+    Understøtter:
+    - Almindelige properties og attributter
+    - Enum håndtering
+    - Array relationships
+    - oneOf/anyOf polymorfiske relationships med abstract klasser
+    - allOf inheritance relationships
+    """
     def __init__(self, schema_dir):
+        """
+        Initialiserer UML generator med schema directory.
+        
+        Args:
+            schema_dir (str): Sti til directory der indeholder OpenAPI schema YAML filer
+        """
         self.schema_dir = schema_dir
-        self.uml_model : dict[str, UmlClass] = {}
-        self.uml_relationships: list[UmlRelationship] = [] 
+        self.uml_model : dict[str, UmlClass] = {}  # Dictionary af alle UML klasser
+        self.uml_relationships: list[UmlRelationship] = []  # Liste af alle relationships 
 
     def _load_yaml(self) -> dict:
-        """Load YAML files from the specified directory."""
+        """
+        Indlæser YAML filer fra det specificerede directory (kun top-level).
+        
+        BEMÆRK: Denne metode bruges ikke i den nuværende implementation.
+        Se _load_yaml_recursive() for den aktive metode.
+        
+        Returns:
+            dict: Dictionary med filnavn som nøgle og parsed YAML indhold som værdi
+        """
         yamls = {}
         for file in os.listdir(self.schema_dir):
             if file.endswith(".yaml"):
@@ -20,7 +47,21 @@ class UMLGenerator:
         return yamls
     
     def _load_yaml_recursive(self) -> dict:
-        """Recursively load YAML files from the specified directory."""
+        """
+        Indlæser rekursivt alle YAML filer fra schema directory og subdirectories.
+        
+        Går gennem alle filer og mapper og finder .yaml filer der indeholder
+        'components/schemas' struktur. Dette sikrer at kun valide OpenAPI
+        schema filer bliver indlæst.
+        
+        Returns:
+            dict: Dictionary med filnavn som nøgle og parsed YAML indhold som værdi.
+                  Kun filer med valid OpenAPI schema struktur inkluderes.
+        
+        Side effects:
+            - Printer filnavne der bliver indlæst
+            - Filtrerer filer der ikke har components/schemas struktur
+        """
         yamls = {}
         for root, _, files in os.walk(self.schema_dir):
             for file in files:
@@ -33,7 +74,26 @@ class UMLGenerator:
         return yamls
 
     def _schema_to_uml_class(self, name: str, schema: dict) -> UmlClass:
-        """Convert a schema to an UML class representation and relationships."""
+        """
+        Konverterer et enkelt OpenAPI schema til en UML klasse.
+        
+        Håndterer følgende OpenAPI elementer:
+        - Enum schemas (markeres med type="enum")
+        - Almindelige properties med type, format, description, example
+        - Required fields (markeres på attributterne)
+        - Komplekse typer som arrays, references, oneOf, anyOf (logges men håndteres i relationships)
+        
+        Args:
+            name (str): Navnet på schema/klassen
+            schema (dict): OpenAPI schema definition
+            
+        Returns:
+            UmlClass: UML klasse repræsentation af schema
+            
+        Side effects:
+            - Printer beskeder om komplekse typer der springes over i denne fase
+            - Konverterer example værdier til strings
+        """
         uml_class = UmlClass(name=name)
         uml_class.description = schema.get("description", "MISSING")
 
@@ -71,6 +131,20 @@ class UMLGenerator:
         return uml_class
     
     def _handle_enum(self, schema_name, prop_name) -> None:
+        """
+        Håndterer enum properties ved at tilføje dem som attributter til den eksisterende klasse.
+        
+        Når en property refererer til en enum (detekteret via '$ref' der indeholder 'enum'),
+        tilføjes enum'en som en attribut direkte på klassen i stedet for som en separat relationship.
+        
+        Args:
+            schema_name (str): Navnet på den klasse der skal have enum attributten
+            prop_name (str): Navnet på property'en der refererer til enum'en
+            
+        Side effects:
+            - Modificerer eksisterende UML klasse ved at tilføje enum attribut
+            - Printer besked om enum håndtering
+        """
         print(f"Enum handled detected for {schema_name}.")
         uc = self.uml_model[schema_name]
         uc.attributes.append(
@@ -83,8 +157,27 @@ class UMLGenerator:
 
     
     def _find_relationships(self, schema_name, schema) -> list[UmlRelationship]:
-        """Find relationships between schemas.
-        and handle enum and arrays."""
+        """
+        Finder og opretter alle relationships for et given schema.
+        
+        Håndterer følgende typer af relationships:
+        1. Direkte $ref relationships (aggregation)
+        2. Enum references (håndteres som attributter via _handle_enum)
+        3. Array relationships (delegeres til _handle_array_items)
+        4. oneOf relationships (delegeres til _handle_polymorphic_relationship med multiplicity="1")
+        5. anyOf relationships (delegeres til _handle_polymorphic_relationship med multiplicity="*")
+        
+        Args:
+            schema_name (str): Navnet på schema der skal analyseres
+            schema (dict): Schema definition der skal analyseres for relationships
+            
+        Returns:
+            list[UmlRelationship]: Liste af alle relationships fundet i schema
+            
+        Side effects:
+            - Kalder _handle_enum for enum references
+            - Printer beskeder om fundne relationship typer
+        """
         relationships = []
         for prop_name, prop_details in schema.get("properties", {}).items():
             if "$ref" in prop_details:
@@ -108,116 +201,44 @@ class UMLGenerator:
                     )
                     relationships.append(relationship)
             elif prop_details.get("type") == "array":
-                if prop_details.get("items", {}).get("anyOf") is not None:
-                    print(f"Array type with AnyOf detected for {prop_name}.")
-                    # Create abstract class for anyOf in array
-                    abstract_class_name = self._create_oneof_abstract_class(prop_name, prop_details["items"]["anyOf"])
-                    
-                    # Create aggregation relationship to the abstract class with multiplicity *
-                    relationship = UmlRelationship(
-                        source=self.uml_model[schema_name],
-                        target=self.uml_model[abstract_class_name],
-                        type="aggregation",
-                        name=prop_name,
-                        multiplicitySource="1",
-                        multiplicityTarget="*"
-                    )
-                    relationships.append(relationship)
-                    
-                    # Create inheritance relationships from concrete classes to abstract class
-                    for any_of in prop_details["items"]["anyOf"]:
-                        if "$ref" in any_of:
-                            target_class_name = any_of["$ref"].split("/")[-1]
-                            inheritance_relationship = UmlRelationship(
-                                source=self.uml_model[target_class_name],
-                                target=self.uml_model[abstract_class_name],
-                                type="generalization",
-                                name=None,
-                                multiplicitySource=None,
-                                multiplicityTarget=None
-                            )
-                            relationships.append(inheritance_relationship)
-                elif prop_details.get("items", {}).get("oneOf") is not None:
-                    print(f"Array type with OneOf detected for {prop_name}.")
-                    # Create abstract class for oneOf in array
-                    abstract_class_name = self._create_oneof_abstract_class(prop_name, prop_details["items"]["oneOf"])
-                    
-                    # Create aggregation relationship to the abstract class with multiplicity *
-                    relationship = UmlRelationship(
-                        source=self.uml_model[schema_name],
-                        target=self.uml_model[abstract_class_name],
-                        type="aggregation",
-                        name=prop_name,
-                        multiplicitySource="1",
-                        multiplicityTarget="*"
-                    )
-                    relationships.append(relationship)
-                    
-                    # Create inheritance relationships from concrete classes to abstract class
-                    for one_of in prop_details["items"]["oneOf"]:
-                        if "$ref" in one_of:
-                            target_class_name = one_of["$ref"].split("/")[-1]
-                            inheritance_relationship = UmlRelationship(
-                                source=self.uml_model[target_class_name],
-                                target=self.uml_model[abstract_class_name],
-                                type="generalization",
-                                name=None,
-                                multiplicitySource=None,
-                                multiplicityTarget=None
-                            )
-                            relationships.append(inheritance_relationship)
-                elif prop_details.get("items", {}).get("AllOf") is not None:
-                    print(f"Array type with AllOf detected for {prop_name}.")
-                elif prop_details.get("items", {}).get("$ref") is not None:  
-                    #print(f"Array type detected for {prop_name}.")
-                    target_class_name = prop_details.get("items", {}).get("$ref").split("/")[-1]
-                    print(f"Target class name: {target_class_name}")
-                    relationship = UmlRelationship(
-                        source=self.uml_model[schema_name],
-                        target=self.uml_model[target_class_name],
-                        type="aggregation",
-                        name=prop_name,
-                        multiplicitySource="1",
-                        multiplicityTarget="*"
-                    )
-                    relationships.append(relationship)
-            elif prop_details.get("oneOf") is not None or prop_details.get("anyOf") is not None:
-                print(f"OneOf / AnyOf type detected for {prop_name}.")
-                # Create a new abstract class for the oneOf relationship
-                abstract_class_name = self._create_oneof_abstract_class(prop_name, prop_details.get("oneOf", []) + prop_details.get("anyOf", []))                
-                # Create aggregation relationship to the abstract class
-                # Set multiplicity based on whether it's oneOf (1) or anyOf (*)
-                multiplicity_target = "*" if prop_details.get("anyOf") is not None else "1"
-                relationship = UmlRelationship(
-                    source=self.uml_model[schema_name],
-                    target=self.uml_model[abstract_class_name],
-                    type="aggregation",
-                    name=prop_name,
-                    multiplicitySource="1",
-                    multiplicityTarget=multiplicity_target
+                relationships.extend(self._handle_array_items(schema_name, prop_name, prop_details.get("items", {})))
+            elif prop_details.get("oneOf") is not None:
+                print(f"OneOf type detected for {prop_name}.")
+                relationships.extend(
+                    self._handle_polymorphic_relationship(schema_name, prop_name, prop_details["oneOf"], "oneOf", "1")
                 )
-                relationships.append(relationship)
-                
-                # Create inheritance relationships from concrete classes to abstract class
-
-                for one_of in prop_details.get("oneOf", []) + prop_details.get("anyOf", []):
-                    if "$ref" in one_of:
-                        target_class_name = one_of["$ref"].split("/")[-1]
-                        inheritance_relationship = UmlRelationship(
-                            source=self.uml_model[target_class_name],
-                            target=self.uml_model[abstract_class_name],
-                            type="generalization",
-                            name=None,
-                            multiplicitySource=None,
-                            multiplicityTarget=None
-                        )
-                        relationships.append(inheritance_relationship)
+            elif prop_details.get("anyOf") is not None:
+                print(f"AnyOf type detected for {prop_name}.")
+                relationships.extend(
+                    self._handle_polymorphic_relationship(schema_name, prop_name, prop_details["anyOf"], "anyOf", "*")
+                )
 
             
         return relationships
 
     def _create_oneof_abstract_class(self, prop_name: str, one_of_refs: list) -> str:
-        """Create an abstract class for oneOf relationships."""
+        """
+        Opretter en abstrakt klasse for oneOf/anyOf relationships.
+        
+        Baseret på property navnet oprettes en abstrakt klasse der fungerer som
+        parent for alle de konkrete klasser i oneOf/anyOf listen. Klasse navnet
+        genereres ved at fjerne underscores og capitalize property navnet.
+        
+        Args:
+            prop_name (str): Navnet på property'en der har oneOf/anyOf
+            one_of_refs (list): Liste af references (bruges kun til dokumentation)
+            
+        Returns:
+            str: Navnet på den oprettede (eller eksisterende) abstrakte klasse
+            
+        Side effects:
+            - Opretter ny UmlClass med type="abstract" hvis den ikke eksisterer
+            - Tilføjer klassen til self.uml_model
+            - Printer besked om oprettelse af abstrakt klasse
+            
+        Eksempel:
+            prop_name="oneof_relation" -> abstract_class_name="OneofRelation"
+        """
         # Create a class name based on the property name
         abstract_class_name = f"{prop_name.replace('_', '').title()}"
         
@@ -234,7 +255,27 @@ class UMLGenerator:
         return abstract_class_name
 
     def _find_allof_relationships(self, schema_name: str, schema: dict) -> list[UmlRelationship]:
-        """Find allOf inheritance relationships."""
+        """
+        Finder og opretter inheritance relationships baseret på allOf konstruktioner.
+        
+        I OpenAPI betyder allOf at et schema arver/udvider fra et eller flere andre schemas.
+        Dette oversættes til UML inheritance relationships hvor den nuværende klasse
+        (child) arver fra de refererede klasser (parents).
+        
+        Args:
+            schema_name (str): Navnet på schema der potentielt har allOf
+            schema (dict): Schema definition der skal tjekkes for allOf
+            
+        Returns:
+            list[UmlRelationship]: Liste af inheritance relationships, tom hvis ingen allOf
+            
+        Side effects:
+            - Printer beskeder om fundne allOf konstruktioner og oprettede inheritance relationships
+            
+        Eksempel:
+            Schema "Aext" med allOf: [{ $ref: "./A.yaml#/components/schemas/A" }]
+            -> Opretter inheritance: Aext --|> A
+        """
         relationships = []
         if "allOf" in schema:
             print(f"AllOf detected for {schema_name}.")
@@ -254,7 +295,155 @@ class UMLGenerator:
                     print(f"Created inheritance: {schema_name} inherits from {target_class_name}")
         return relationships
 
+    def _handle_polymorphic_relationship(self, schema_name: str, prop_name: str, poly_refs: list, relationship_type: str, multiplicity_target: str) -> list[UmlRelationship]:
+        """
+        Håndterer oneOf/anyOf polymorfiske relationships ved at oprette abstract klasse og inheritance.
+        
+        Dette er kernen i oneOf/anyOf håndtering:
+        1. Opretter en abstrakt klasse baseret på property navnet
+        2. Opretter aggregation relationship fra parent klasse til abstrakt klasse
+        3. Opretter inheritance relationships fra alle konkrete klasser til abstrakt klasse
+        
+        Args:
+            schema_name (str): Navnet på parent klassen der har oneOf/anyOf property
+            prop_name (str): Navnet på property'en (bruges til abstrakt klasse navn)
+            poly_refs (list): Liste af $ref objekter der peger på konkrete klasser
+            relationship_type (str): "oneOf" eller "anyOf" (til dokumentation)
+            multiplicity_target (str): "1" for oneOf, "*" for anyOf
+            
+        Returns:
+            list[UmlRelationship]: Liste indeholdende:
+                - 1 aggregation relationship (parent -> abstract)
+                - N inheritance relationships (concrete -> abstract)
+                
+        Side effects:
+            - Kalder _create_oneof_abstract_class som opretter abstrakt klasse
+            
+        Eksempel:
+            oneOf: [ClassA, ClassB] -> 
+            - Abstrakt klasse "PropertyName"
+            - Parent o-- "1" PropertyName
+            - ClassA --|> PropertyName
+            - ClassB --|> PropertyName
+        """
+        relationships = []
+        
+        # Create abstract class for the polymorphic relationship
+        abstract_class_name = self._create_oneof_abstract_class(prop_name, poly_refs)
+        
+        # Create aggregation relationship to the abstract class
+        relationship = UmlRelationship(
+            source=self.uml_model[schema_name],
+            target=self.uml_model[abstract_class_name],
+            type="aggregation",
+            name=prop_name,
+            multiplicitySource="1",
+            multiplicityTarget=multiplicity_target
+        )
+        relationships.append(relationship)
+        
+        # Create inheritance relationships from concrete classes to abstract class
+        for poly_ref in poly_refs:
+            if "$ref" in poly_ref:
+                target_class_name = poly_ref["$ref"].split("/")[-1]
+                inheritance_relationship = UmlRelationship(
+                    source=self.uml_model[target_class_name],
+                    target=self.uml_model[abstract_class_name],
+                    type="generalization",
+                    name=None,
+                    multiplicitySource=None,
+                    multiplicityTarget=None
+                )
+                relationships.append(inheritance_relationship)
+        
+        return relationships
+
+    def _handle_array_items(self, schema_name: str, prop_name: str, items: dict) -> list[UmlRelationship]:
+        """
+        Håndterer forskellige typer af array items og opretter passende relationships.
+        
+        Arrays kan indeholde forskellige typer af items:
+        1. anyOf items -> Delegeres til _handle_polymorphic_relationship med multiplicity="*"
+        2. oneOf items -> Delegeres til _handle_polymorphic_relationship med multiplicity="*"
+        3. allOf items -> Logges men ikke implementeret endnu
+        4. Direkte $ref -> Opretter simpel aggregation med multiplicity="*"
+        
+        Args:
+            schema_name (str): Navnet på klassen der har array property'en
+            prop_name (str): Navnet på array property'en
+            items (dict): Items definition fra array schema
+            
+        Returns:
+            list[UmlRelationship]: Liste af relationships afhængig af items type:
+                - Polymorfiske: Aggregation + inheritance relationships
+                - Direkte ref: Enkelt aggregation relationship
+                - allOf: Tom liste (ikke implementeret)
+                
+        Side effects:
+            - Printer beskeder om fundne array item typer
+            - For anyOf/oneOf: Opretter abstrakt klasse via _handle_polymorphic_relationship
+            
+        Bemærk:
+            Arrays får altid multiplicity="*" da det er en array af elementer.
+        """
+        relationships = []
+        
+        if items.get("anyOf") is not None:
+            print(f"Array type with AnyOf detected for {prop_name}.")
+            relationships.extend(
+                self._handle_polymorphic_relationship(schema_name, prop_name, items["anyOf"], "anyOf", "*")
+            )
+        elif items.get("oneOf") is not None:
+            print(f"Array type with OneOf detected for {prop_name}.")
+            relationships.extend(
+                self._handle_polymorphic_relationship(schema_name, prop_name, items["oneOf"], "oneOf", "*")
+            )
+        elif items.get("AllOf") is not None:
+            print(f"Array type with AllOf detected for {prop_name}.")
+            # TODO: Implement allOf handling for arrays if needed
+        elif items.get("$ref") is not None:
+            ref = items.get("$ref")
+            if ref:
+                target_class_name = ref.split("/")[-1]
+                print(f"Array with direct reference to {target_class_name}")
+                relationship = UmlRelationship(
+                    source=self.uml_model[schema_name],
+                    target=self.uml_model[target_class_name],
+                    type="aggregation",
+                    name=prop_name,
+                    multiplicitySource="1",
+                    multiplicityTarget="*"
+                )
+                relationships.append(relationship)
+        
+        return relationships
+
     def generate_uml(self) -> tuple[dict[str, UmlClass], list[UmlRelationship]]:
+        """
+        Hovedmetode der genererer komplet UML model fra alle YAML schema filer.
+        
+        Processen sker i tre faser:
+        1. Indlæs alle YAML filer rekursivt
+        2. Opret UML klasser for alle schemas (første gennemgang)
+        3. Opret relationships mellem klasserne (anden gennemgang)
+        
+        To-faset approach sikrer at alle klasser eksisterer før relationships oprettes,
+        hvilket undgår problemer med forward references.
+        
+        Returns:
+            tuple: (uml_model, uml_relationships) hvor:
+                - uml_model: Dict[str, UmlClass] - Alle UML klasser indexeret efter navn
+                - uml_relationships: List[UmlRelationship] - Alle relationships mellem klasser
+                
+        Side effects:
+            - Populerer self.uml_model med alle UML klasser
+            - Populerer self.uml_relationships med alle relationships
+            - Printer beskeder om indlæsning via _load_yaml_recursive
+            
+        Fejlhåndtering:
+            - Forventer at alle $ref references peger på eksisterende klasser
+            - Ignorerer filer uden valid OpenAPI struktur
+        """
         yamls = self._load_yaml_recursive()
         
         for yaml_name, yamldict in yamls.items():

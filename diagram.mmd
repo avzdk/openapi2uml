@@ -47,9 +47,6 @@ classDiagram
     class Spec
     Spec : <<abstract>>
 
-    class Anyofrelation
-    Anyofrelation : <<abstract>>
-
     Aext o-- "*" Multianyofrelation :  multi_anyof_relation
     Multianyofrelation <|-- I
     Multianyofrelation <|-- H
@@ -58,7 +55,5 @@ classDiagram
     Aext o-- "1" Spec :  oneof_relation
     Spec <|-- SpecD
     Spec <|-- SpecE
-    Aext o-- "*" Anyofrelation :  anyof_relation
-    Anyofrelation <|-- F
-    Anyofrelation <|-- G
+    Aext o-- "*" Spec :  anyof_relation
     A <|-- Aext

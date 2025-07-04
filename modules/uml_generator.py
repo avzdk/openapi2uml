@@ -506,12 +506,31 @@ class UMLGenerator:
                 self.uml_model[schema_name] = uml_class
         # Iterate through each schema in the YAML file and find relationships
         # handles enum and arrays
+        all_relationships = []
         for yaml_name, yamldict in yamls.items():
             schemas = yamldict['components']['schemas']
             for schema_name, schema in schemas.items():
                 relationships = self._find_relationships(schema_name, schema)
-                self.uml_relationships.extend(relationships)
+                all_relationships.extend(relationships)
                 allof_relationships = self._find_allof_relationships(schema_name, schema)
-                self.uml_relationships.extend(allof_relationships)
+                all_relationships.extend(allof_relationships)
+        
+        # Remove duplicate generalization relationships
+        # (can happen when multiple oneOf/anyOf properties use the same classes)
+        unique_relationships = []
+        generalization_seen = set()  # (source, target) tuples for generalization relationships
+        
+        for rel in all_relationships:
+            if rel.type == "generalization":
+                rel_key = (rel.source.name, rel.target.name)
+                if rel_key not in generalization_seen:
+                    generalization_seen.add(rel_key)
+                    unique_relationships.append(rel)
+                else:
+                    print(f"Skipping duplicate generalization: {rel.source.name} --|> {rel.target.name}")
+            else:
+                unique_relationships.append(rel)
+        
+        self.uml_relationships = unique_relationships
         return self.uml_model, self.uml_relationships
 

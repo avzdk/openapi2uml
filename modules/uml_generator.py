@@ -103,6 +103,19 @@ class UMLGenerator:
         for prop_name, prop_details in schema.get("properties", {}).items():
             
             if prop_details.get("type") == "array":
+                itemtype = prop_details.get("items", {}).get("type")
+                if itemtype != None:
+                    attribute = UmlClassAttribute(
+                    name=prop_name+"",
+                    type=prop_details.get("type", "unknown"),
+                    format=prop_details.get("format"),
+                    description=prop_details.get("description"),
+                    example=str(prop_details.get("example")),
+                    ref=prop_details.get("$ref"),
+                    required=prop_name in schema.get("required", [])
+                    )
+                    uml_class.attributes.append(attribute)
+
                 print(f"Array type detected for {prop_name}. Skipping for now.")
                 ref_class_name = prop_details.get("items", {}).get("$ref")
                 print(f"Ref class name: {ref_class_name}")
@@ -403,7 +416,6 @@ class UMLGenerator:
             Arrays får altid multiplicity="*" da det er en array af elementer.
         """
         relationships = []
-        
         if items.get("anyOf") is not None:
             print(f"Array type with AnyOf detected for {prop_name}.")
             relationships.extend(
@@ -534,3 +546,33 @@ class UMLGenerator:
         self.uml_relationships = unique_relationships
         return self.uml_model, self.uml_relationships
 
+    def get_model_from_class_name(self, class_name: str) -> tuple[dict[str, UmlClass], list[UmlRelationship]]:
+        """
+        Henter uml-modellen ud fra en klasse og dennes relationer. Udelader ikke relaterede klasser
+        """
+        print(f"--------- Getting model from class name: {class_name}")
+        
+        
+        uml_class = self.uml_model.get(class_name)  
+        
+        # aggregation relationships where this class is source 
+        uml_relationships_for_class = [rel for rel in self.uml_relationships if rel.source.name == class_name and rel.type == "aggregation"]
+        uml_relationships_for_class += [rel for rel in self.uml_relationships if rel.source.name == class_name and rel.type == "generalization"]
+
+        uml_model = {}
+        uml_relationships = []
+        # Først klassens egne
+        uml_model[uml_class.name] = uml_class # pyright: ignore[reportOptionalMemberAccess]
+        uml_relationships.extend(uml_relationships_for_class)
+
+        print(f"-----------Relationships found: {len(uml_relationships)}")
+        # recursively add target classes of aggregation relationships
+        for rel in uml_relationships_for_class:
+            uml_model_r, uml_relationships_r = self.get_model_from_class_name(rel.target.name)
+            uml_model.update(uml_model_r)
+            uml_relationships.extend(uml_relationships_r)
+        print(f"--------- DONE Getting model from class name: {class_name}")
+        # or generalization relationships where this class is target
+        
+        
+        return uml_model, uml_relationships

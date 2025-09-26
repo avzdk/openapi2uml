@@ -13,10 +13,18 @@ if __name__ == "__main__":
     parser.add_argument("schema_dir", type=str, help="Path to the directory containing OpenAPI schemas.")
     parser.add_argument("--filename", "-f", type=str, default="diagram", help="Base filename for output files (without extension). Default: diagram")
     parser.add_argument("--format", choices=["plantuml", "mermaid", "both"], default="both", help="Output format: plantuml, mermaid, or both. Default: both")
+    parser.add_argument("--startclass", "-s", type=str, default=None, help="Generate UML for a specific class")
     args = parser.parse_args()
 
     uml_generator = UMLGenerator(args.schema_dir)
-    model, relations = uml_generator.generate_uml()
+    
+    if args.startclass is not None:
+        print(f"Generating UML for specific class: {args.startclass}")
+        model, relations = uml_generator.get_model_from_class_name(args.startclass)
+    else:
+        model, relations = uml_generator.generate_uml()
+
+    
 
     # Generate PlantUML if requested
     if args.format in ["plantuml", "both"]:

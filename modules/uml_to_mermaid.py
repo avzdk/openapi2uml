@@ -24,7 +24,7 @@ class UMLToMermaidConverter:
                 visibility = "+" if attr.required else "-"
                 attr_type = attr.type
                 if attr.format:
-                    attr_type += f"({attr.format})"
+                    attr_type += f":{attr.format}"
                 mermaid_str += f"        {visibility}{attr.name} : {attr_type}\n"
         
         mermaid_str += "    }\n"
